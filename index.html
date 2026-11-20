@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SW·AI 교육 연구원 진로 탐색기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 체크박스 커스텀 */
+        .compare-checkbox:checked + div {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        
+        /* 인포그래픽 타임라인 선 */
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: #bfdbfe;
+            transform: translateX(-50%);
+            border-radius: 4px;
+        }
+        @media (max-width: 768px) {
+            .timeline-line::before {
+                left: 24px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen relative pb-20">
+
+    <!-- 헤더 -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
+        <div class="max-w-6xl mx-auto px-6 py-10 text-center">
+            <span class="bg-white/20 px-3 py-1 rounded-full text-sm font-medium tracking-wider mb-4 inline-block">고등학생 진로 탐색</span>
+            <h1 class="text-3xl md:text-4xl font-bold mb-3">SW·AI 교육 연구원 세부 직업 탐색기</h1>
+            <p class="text-blue-100 text-lg">미래 교육을 혁신하는 다양한 전문가들의 역할을 알아보고 나의 진로를 설계해보세요.</p>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        
+        <!-- 컨트롤 패널 -->
+        <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <p class="text-slate-500 font-medium">탐색하고 싶은 직업 카드를 클릭하세요. (비교하려면 체크박스 2개 선택)</p>
+            <button id="compareBtn" class="bg-slate-200 text-slate-500 px-6 py-2 rounded-xl font-bold transition-all duration-300 cursor-not-allowed" disabled>
+                선택 직업 비교하기 (<span id="selectCount">0</span>/2)
+            </button>
+        </div>
+
+        <!-- 직업 카드 그리드 -->
+        <div id="jobGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- JS로 렌더링 됨 -->
+        </div>
+
+    </main>
+
+    <!-- 상세 정보 모달 -->
+    <div id="detailModal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-center items-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="closeModal('detailModal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-700">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div id="detailContent" class="p-8">
+                <!-- JS로 렌더링 됨 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 비교 모달 -->
+    <div id="compareModal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-center items-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="closeModal('compareModal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-700">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="p-8">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    직무 및 역량 비교
+                </h2>
+                <div id="compareContent" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- JS로 렌더링 됨 -->
+                </div>
+                <div id="compareSummary" class="mt-8 p-6 bg-blue-50 rounded-2xl border border-blue-100">
+                    <!-- 공통점/차이점 분석 렌더링 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 로드맵 모달 (인포그래픽) -->
+    <div id="roadmapModal" class="fixed inset-0 bg-slate-50 z-50 hidden overflow-y-auto transition-opacity">
+        <div class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-200 z-10 px-6 py-4 flex justify-between items-center shadow-sm">
+            <h2 id="roadmapTitle" class="text-xl font-bold text-slate-800">진로 준비 로드맵</h2>
+            <button onclick="closeModal('roadmapModal')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                돌아가기
+            </button>
+        </div>
+        <div class="max-w-4xl mx-auto px-4 py-12">
+            <div class="text-center mb-12">
+                <p class="text-blue-600 font-semibold mb-2">My Career Path</p>
+                <h3 id="roadmapJobName" class="text-3xl font-bold text-slate-800 mb-4">직업명</h3>
+                <p class="text-slate-500">고등학교부터 실무 전문가가 되기까지의 핵심 단계를 시각화했습니다.</p>
+            </div>
+            
+            <div id="roadmapTimeline" class="relative timeline-line py-8">
+                <!-- JS로 렌더링 됨 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 대학 정보 모달 -->
+    <div id="univModal" class="fixed inset-0 bg-black/40 z-[60] hidden flex justify-center items-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+            <button onclick="closeModal('univModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h3 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                🎓 <span id="univModalTitle">전공명</span>
+            </h3>
+            <p class="text-sm text-slate-500 mb-4">수도권 주요 개설 대학 (예시)</p>
+            <div id="univModalContent" class="flex flex-wrap gap-2">
+                <!-- JS로 렌더링 됨 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 직업 데이터베이스
+        const jobData = [
+            {
+                id: 'job1',
+                title: 'AI 교육 콘텐츠 개발자',
+                shortDesc: '학습자를 위한 인공지능 기반의 교재, 커리큘럼, 디지털 콘텐츠를 기획하고 개발합니다.',
+                icon: '📚',
+                color: 'from-blue-400 to-blue-600',
+                duties: [
+                    '연령별/수준별 맞춤형 AI 학습 커리큘럼 기획',
+                    '코딩 실습 플랫폼 및 대화형 튜토리얼 콘텐츠 제작',
+                    '교사 및 학생을 위한 AI 활용 가이드북 집필'
+                ],
+                practicalExample: '초등학생도 쉽게 이해할 수 있는 "블록 코딩으로 만드는 나만의 챗봇" 교재 및 실습 예제 개발 프로젝트 수행',
+                majors: ['컴퓨터교육과', '교육공학과', '컴퓨터공학과', '콘텐츠제작학과'],
+                highSchoolSubjects: ['정보', '확률과 통계', '실용 국어', '논리학'],
+                competencies: [
+                    { name: '콘텐츠 기획력', desc: '학습자의 흥미를 유발하고 목표를 달성할 수 있는 내용 구성 능력' },
+                    { name: '교육학적 지식 (Pedagogy)', desc: '효과적인 교수학습 이론 및 평가 방법에 대한 이해' },
+                    { name: '프로그래밍 기초', desc: '파이썬, 웹 프론트엔드 등 콘텐츠 구현을 위한 기초 코딩 역량' },
+                    { name: '창의적 문제해결력', desc: '기존 교육의 한계를 SW/AI 기술로 극복하는 창의적 아이디어 도출' }
+                ],
+                projects: [
+                    '학교 교과목(예: 수학)에 AI를 접목한 학습 자료 아이디어 기획',
+                    '기존 온라인 강의 플랫폼의 UI/UX 및 학습 효과 분석 보고서 작성'
+                ],
+                roadmap: [
+                    { step: '고등학교', title: '기초 소양 및 진로 탐색', desc: '정보, 확률과 통계 이수. 교내 SW/AI 동아리 활동을 통해 간단한 교육용 게임 제작.' },
+                    { step: '대학교', title: '전공 지식 습득', desc: '컴퓨터교육 또는 교육공학 전공. 교육학 이론과 프로그래밍(Python, Web) 실무를 병행 학습.' },
+                    { step: '대학생활/대외활동', title: '콘텐츠 기획 경험', desc: '에듀테크 기업 인턴십 또는 교육 봉사활동 참여. 실제 학생들을 가르치며 피드백 수집.' },
+                    { step: '취업 및 실무', title: '에듀테크 콘텐츠 기획자', desc: '에듀테크 기업 입사 후 주니어 연구원으로 교재 및 온라인 강의 커리큘럼 설계 담당.' }
+                ]
+            },
+            {
+                id: 'job2',
+                title: '에듀테크 AI 모델 인지엔지니어',
+                shortDesc: '학습 데이터를 분석하여 맞춤형 학습 경로를 추천하는 AI 알고리즘과 시스템을 개발합니다.',
+                icon: '⚙️',
+                color: 'from-indigo-400 to-indigo-600',
+                duties: [
+                    '학습자 수준 진단 및 오답 원인 분석 AI 모델 개발',
+                    '개인별 맞춤형 문제 추천 알고리즘 설계',
+                    'LMS(학습관리시스템)와 AI 엔진 연동 기획'
+                ],
+                practicalExample: '학생들의 과거 수학 문제 풀이 데이터를 머신러닝으로 분석하여, 다음 시험에서 틀릴 확률이 높은 문제 유형을 예측하는 알고리즘 구축',
+                majors: ['인공지능학과', '소프트웨어학과', '데이터사이언스학과', '수학과'],
+                highSchoolSubjects: ['인공지능 수학', '미적분', '물리학', '정보'],
+                competencies: [
+                    { name: '머신러닝/딥러닝 지식', desc: '알고리즘 원리 이해 및 프레임워크(PyTorch, TensorFlow) 활용 능력' },
+                    { name: '알고리즘 구현 능력', desc: '주어진 논리를 코드로 빠르고 정확하게 작성하는 프로그래밍 역량' },
+                    { name: '데이터 구조 이해', desc: '대용량 데이터를 효율적으로 저장하고 처리하기 위한 자료구조 지식' },
+                    { name: '수리적 사고력', desc: '확률, 통계, 선형대수학 등 AI 모델의 수학적 기반을 이해하는 능력' }
+                ],
+                projects: [
+                    '공공 데이터포털의 교육 데이터를 활용한 학생 성적 추이 시각화',
+                    '파이썬을 활용한 간단한 교내 도서 추천 챗봇(규칙 기반) 만들기'
+                ],
+                roadmap: [
+                    { step: '고등학교', title: '수학/SW 기초 탄탄히', desc: '미적분, 인공지능 수학 심화 학습. 파이썬 기초 문법 및 데이터 분석 라이브러리(Pandas) 독학.' },
+                    { step: '대학교', title: 'AI/SW 전공 심화', desc: '컴퓨터공학/AI 전공. 자료구조, 알고리즘, 기계학습, 딥러닝 과목 이수 및 프로젝트 수행.' },
+                    { step: '대학생활/대외활동', title: '실전 데이터 분석', desc: 'Kaggle 등 데이터 분석 대회 참여. 교육 데이터셋(EdNet 등)을 활용한 논문 스터디.' },
+                    { step: '취업 및 실무', title: 'AI 솔루션 개발자', desc: '에듀테크 스타트업이나 연구소에서 지식 추적(Knowledge Tracing) AI 모델 개발 엔지니어로 활약.' }
+                ]
+            },
+            {
+                id: 'job3',
+                title: '학습 데이터 분석가',
+                shortDesc: '교육 플랫폼에서 발생하는 방대한 로그 데이터를 시각화하고 교육적 인사이트를 도출합니다.',
+                icon: '📊',
+                color: 'from-emerald-400 to-emerald-600',
+                duties: [
+                    '사용자(학생/교사)의 학습 패턴 및 플랫폼 이용 로그 분석',
+                    '데이터 대시보드 구축 및 시각화',
+                    '학습 효과성 검증 및 서비스 개선안 도출'
+                ],
+                practicalExample: '동영상 강의 시청 중 학생들이 자주 이탈하는 구간의 데이터를 분석하여, 영상 길이나 난이도 조정을 개발팀에 제안',
+                majors: ['통계학과', '응용통계학과', '교육평가전공', '경영정보학과(MIS)'],
+                highSchoolSubjects: ['확률과 통계', '경제', '사회·문화', '정보'],
+                competencies: [
+                    { name: '통계적 분석 능력', desc: '데이터의 분포와 상관관계를 파악하고 유의미한 가설을 검증하는 능력' },
+                    { name: '데이터 시각화', desc: '복잡한 데이터를 직관적인 그래프나 대시보드(Tableau 등)로 표현' },
+                    { name: '논리적 사고력', desc: '데이터 분석 결과를 바탕으로 타당한 원인과 결론을 도출하는 사고' },
+                    { name: '소통 능력', desc: '분석 결과를 기획자 등 비전문가에게 쉽게 설명하는 커뮤니케이션 스킬' }
+                ],
+                projects: [
+                    '설문조사를 통한 우리 학교 학생들의 스마트폰 사용 시간과 수면 시간의 상관관계 분석',
+                    '스프레드시트를 활용한 학급 모의고사 성적 대시보드 제작'
+                ],
+                roadmap: [
+                    { step: '고등학교', title: '통계적 사고력 배양', desc: '확률과 통계 집중 학습. 실생활 데이터를 수집하고 엑셀 등을 활용해 차트로 표현하는 연습.' },
+                    { step: '대학교', title: '데이터 분석 전문성', desc: '통계학 또는 데이터사이언스 전공. R, Python, SQL 등 데이터 처리를 위한 언어 숙달.' },
+                    { step: '대학생활/대외활동', title: '인사이트 도출 연습', desc: '학회 활동을 통해 기업의 실제 데이터를 분석하고 개선 전략을 제안하는 공모전 참여.' },
+                    { step: '취업 및 실무', title: '데이터 애널리스트', desc: '교육 기업의 데이터팀에 입사하여 A/B 테스트 설계 및 학습 효과성 검증 데이터 리포트 발행.' }
+                ]
+            },
+            {
+                id: 'job4',
+                title: 'AI 윤리 교육 연구원',
+                shortDesc: '인공지능이 가져올 사회적, 윤리적 문제를 분석하고, 올바른 AI 활용을 위한 가이드라인과 교육안을 연구합니다.',
+                icon: '⚖️',
+                color: 'from-purple-400 to-purple-600',
+                duties: [
+                    'AI 편향성, 저작권, 개인정보 보호 관련 교육 커리큘럼 설계',
+                    '학생 및 교사 대상 디지털 시민성(Digital Citizenship) 연수 기획',
+                    'AI 윤리 가이드라인 및 정책 연구'
+                ],
+                practicalExample: '생성형 AI(ChatGPT 등)를 학교 과제에 활용할 때 지켜야 할 "고등학생을 위한 프롬프트 윤리 10계명" 제정 및 교육',
+                majors: ['철학과', '윤리교육과', '사회학과', '법학과'],
+                highSchoolSubjects: ['생활과 윤리', '사회·문화', '정치와 법', '철학'],
+                competencies: [
+                    { name: '비판적 사고력', desc: 'AI 기술의 긍정적 측면과 숨겨진 편향성이나 위험을 인지하는 능력' },
+                    { name: '윤리적 감수성', desc: '기술이 인간과 사회에 미치는 영향을 다각도로 공감하고 고민하는 태도' },
+                    { name: '인문학적 소양', desc: '철학, 역사, 문학 등을 통해 인간 본성과 사회 시스템에 깊은 이해' },
+                    { name: 'AI 작동 원리 이해', desc: '비개발자라도 AI의 데이터 학습 방식과 기술적 한계를 인지하는 지식' }
+                ],
+                projects: [
+                    'AI 면접관의 성별/인종 편향성 사례를 조사하고 해결 방안에 대한 소논문 작성',
+                    '학교 내 생성형 AI 활용 실태 설문 및 올바른 사용 캠페인 기획'
+                ],
+                roadmap: [
+                    { step: '고등학교', title: '인문학적 통찰과 토론', desc: '윤리, 사회 과목에 집중하며 독서 토론 동아리에서 기술 발전이 사회에 미치는 영향 논의.' },
+                    { step: '대학교', title: '융합적 시각 확보', desc: '철학, 사회학 등 인문/사회 전공. 교양으로 프로그래밍이나 AI 개론을 수강하여 기술적 이해도 높임.' },
+                    { step: '대학생활/대외활동', title: '연구 및 정책 참여', desc: '시민단체나 대학 연구소의 디지털 윤리 관련 프로젝트 보조 연구원으로 참여. 칼럼 작성.' },
+                    { step: '취업 및 실무', title: '정책 연구원 / 강사', desc: '국가 연구기관이나 교육 재단에서 AI 윤리 정책을 연구하거나, 전문 강사로 교육 현장 출강.' }
+                ]
+            }
+        ];
+
+        // 전공별 수도권 대학 매핑 데이터 (예시)
+        const majorUnivMap = {
+            '컴퓨터교육과': ['성균관대', '고려대', '이화여대', '인하대'],
+            '교육공학과': ['한양대', '이화여대', '건국대', '중앙대'],
+            '컴퓨터공학과': ['서울대', '연세대', '고려대', '한양대', '서강대', '성균관대', '중앙대', '기타 수도권 대다수'],
+            '콘텐츠제작학과': ['세종대', '국민대', '경희대', '아주대'],
+            '인공지능학과': ['서울대', '연세대', '고려대', '성균관대', '한양대', '이화여대', '중앙대', '경희대'],
+            '소프트웨어학과': ['성균관대', '한양대', '중앙대', '경희대', '국민대', '아주대', '단국대'],
+            '데이터사이언스학과': ['서울대', '연세대', '고려대', '이화여대', '세종대', '인하대'],
+            '수학과': ['서울대', '연세대', '고려대', '서강대', '성균관대', '한양대', '기타 수도권 대다수'],
+            '통계학과': ['서울대', '연세대', '고려대', '성균관대', '이화여대', '중앙대', '동국대'],
+            '응용통계학과': ['연세대', '건국대', '중앙대'],
+            '교육평가전공': ['연세대(교육학부)', '고려대(교육학과)', '성균관대(교육학과)'],
+            '경영정보학과(MIS)': ['국민대', '명지대', '단국대', '가천대', '경희대'],
+            '철학과': ['서울대', '연세대', '고려대', '서강대', '성균관대', '한양대', '이화여대', '중앙대'],
+            '윤리교육과': ['서울대', '성균관대', '인천대'],
+            '사회학과': ['서울대', '연세대', '고려대', '서강대', '성균관대', '한양대', '이화여대', '중앙대'],
+            '법학과': ['국민대', '단국대', '동국대', '홍익대', '숭실대', '명지대']
+        };
+
+        let selectedJobs = [];
+
+        // DOM 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            renderJobCards();
+        });
+
+        // 1. 카드 렌더링
+        function renderJobCards() {
+            const grid = document.getElementById('jobGrid');
+            grid.innerHTML = '';
+
+            jobData.forEach(job => {
+                const card = document.createElement('div');
+                card.className = 'relative group';
+                card.innerHTML = `
+                    <label class="absolute top-4 right-4 z-10 cursor-pointer flex items-center justify-center">
+                        <input type="checkbox" class="compare-checkbox hidden" value="${job.id}" onchange="handleSelect(this)">
+                        <div class="w-6 h-6 rounded-md border-2 border-slate-300 bg-white flex items-center justify-center transition-colors shadow-sm">
+                            <svg class="w-4 h-4 text-blue-600 opacity-0 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                    </label>
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col cursor-pointer" onclick="openDetail('${job.id}', event)">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${job.color} flex items-center justify-center text-2xl shadow-inner mb-4">
+                            ${job.icon}
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">${job.title}</h3>
+                        <p class="text-slate-500 text-sm flex-grow line-clamp-3">${job.shortDesc}</p>
+                        <div class="mt-4 pt-4 border-t border-slate-100 text-blue-600 font-medium text-sm flex items-center justify-between">
+                            <span>자세히 보기</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // 체크박스 SVG 토글 로직 추가
+            document.querySelectorAll('.compare-checkbox').forEach(cb => {
+                cb.addEventListener('change', function() {
+                    const svg = this.nextElementSibling.querySelector('svg');
+                    if(this.checked) svg.classList.remove('opacity-0');
+                    else svg.classList.add('opacity-0');
+                });
+            });
+        }
+
+        // 2. 선택 처리 로직
+        function handleSelect(checkbox) {
+            if (checkbox.checked) {
+                if (selectedJobs.length >= 2) {
+                    alert("비교는 최대 2개까지만 가능합니다.");
+                    checkbox.checked = false;
+                    checkbox.nextElementSibling.querySelector('svg').classList.add('opacity-0');
+                    return;
+                }
+                selectedJobs.push(checkbox.value);
+            } else {
+                selectedJobs = selectedJobs.filter(id => id !== checkbox.value);
+            }
+            updateCompareButton();
+        }
+
+        function updateCompareButton() {
+            const btn = document.getElementById('compareBtn');
+            document.getElementById('selectCount').innerText = selectedJobs.length;
+            
+            if (selectedJobs.length === 2) {
+                btn.className = "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-bold transition-all duration-300 shadow-md";
+                btn.disabled = false;
+                btn.onclick = openCompare;
+            } else {
+                btn.className = "bg-slate-200 text-slate-500 px-6 py-2 rounded-xl font-bold transition-all duration-300 cursor-not-allowed";
+                btn.disabled = true;
+                btn.onclick = null;
+            }
+        }
+
+        // 3. 상세 정보 모달 열기
+        function openDetail(jobId, event) {
+            // 체크박스 클릭 시 모달 열림 방지
+            if(event.target.tagName.toLowerCase() === 'input' || event.target.closest('label')) return;
+
+            const job = jobData.find(j => j.id === jobId);
+            const content = document.getElementById('detailContent');
+            
+            content.innerHTML = `
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br ${job.color} flex items-center justify-center text-3xl shadow-lg">
+                        ${job.icon}
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800">${job.title}</h2>
+                        <p class="text-slate-500 mt-1">${job.shortDesc}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- 왼쪽 열 -->
+                    <div class="space-y-6">
+                        <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
+                            <h4 class="font-bold text-blue-800 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>직무 및 실무 사례</h4>
+                            <ul class="list-disc list-inside text-sm text-slate-700 space-y-2 mb-3">
+                                ${job.duties.map(d => `<li>${d}</li>`).join('')}
+                            </ul>
+                            <div class="bg-white p-3 rounded-xl text-sm border border-blue-100 text-slate-600">
+                                <strong>💡 실무 사례:</strong> ${job.practicalExample}
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100">
+                            <h4 class="font-bold text-indigo-800 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-500"></span>관련 전공 및 추천 선택 과목</h4>
+                            <div class="mb-3">
+                                <strong class="text-sm text-indigo-700 block mb-1">🎓 추천 대학교 전공 (클릭하여 개설 대학 확인)</strong>
+                                <div class="flex flex-wrap gap-2">
+                                    ${job.majors.map(m => `<button onclick="showUniv('${m}')" class="px-3 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs text-indigo-700 hover:bg-indigo-60 hover:border-indigo-400 transition-colors shadow-sm focus:outline-none flex items-center gap-1 font-medium">${m} <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>`).join('')}
+                                </div>
+                            </div>
+                            <div>
+                                <strong class="text-sm text-indigo-700 block mb-1">🏫 고교 선택 과목</strong>
+                                <div class="flex flex-wrap gap-2">
+                                    ${job.highSchoolSubjects.map(s => `<span class="px-2 py-1 bg-white border border-indigo-200 rounded-lg text-xs text-slate-600">${s}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 오른쪽 열 -->
+                    <div class="space-y-6">
+                        <div class="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100">
+                            <h4 class="font-bold text-emerald-800 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>필요 핵심 역량</h4>
+                            <div class="space-y-3">
+                                ${job.competencies.map(c => `
+                                    <div class="bg-white border border-emerald-100 p-3 rounded-xl shadow-sm">
+                                        <strong class="text-emerald-700 text-sm block mb-1">${c.name}</strong>
+                                        <p class="text-xs text-slate-600">${c.desc}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50/50 p-5 rounded-2xl border border-purple-100">
+                            <h4 class="font-bold text-purple-800 mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span>생기부 연계 탐구 프로젝트 아이디어</h4>
+                            <ul class="space-y-3">
+                                ${job.projects.map(p => `
+                                    <li class="flex gap-2 text-sm text-slate-700 bg-white p-3 rounded-xl border border-purple-100">
+                                        <span class="text-purple-500 mt-0.5">📌</span>
+                                        <span>${p}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="openRoadmap('${job.id}')" class="bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-xl inline-flex items-center gap-2">
+                        <span>🚀 이 직업의 진로 준비 로드맵 보기</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        // 4. 비교 모달 열기 및 분석
+        function openCompare() {
+            const job1 = jobData.find(j => j.id === selectedJobs[0]);
+            const job2 = jobData.find(j => j.id === selectedJobs[1]);
+            
+            const content = document.getElementById('compareContent');
+            content.innerHTML = renderCompareCard(job1) + renderCompareCard(job2);
+
+            // 공통점 차이점 로직 계산 (단순 시뮬레이션: 역량 및 과목 기반)
+            const commonSubjects = job1.highSchoolSubjects.filter(value => job2.highSchoolSubjects.includes(value));
+            
+            const summary = document.getElementById('compareSummary');
+            summary.innerHTML = `
+                <h4 class="font-bold text-blue-900 text-lg mb-4">💡 AI 분석: 두 직업의 비교 포인트</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow-sm">
+                        <strong class="text-blue-600 block mb-2">🤝 공통점</strong>
+                        <p class="text-sm text-slate-700 mb-2">두 직업 모두 기본적으로 <strong>교육 현장에 대한 이해</strong>와 <strong>디지털 기술(SW/AI) 활용 능력</strong>이 융합되어야 합니다.</p>
+                        ${commonSubjects.length > 0 ? `<p class="text-sm text-slate-700">고교 추천 과목 중 <strong>[${commonSubjects.join(', ')}]</strong>을(를) 공통적으로 필요로 합니다.</p>` : ''}
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm">
+                        <strong class="text-rose-500 block mb-2">⚖️ 차이점</strong>
+                        <p class="text-sm text-slate-700"><strong>${job1.title}</strong>은(는) [${job1.competencies[0].name}] 측면에, <strong>${job2.title}</strong>은(는) [${job2.competencies[0].name}] 측면에 더 무게를 둡니다.</p>
+                        <p class="text-sm text-slate-700 mt-2">전공 선택 시 ${job1.title}은(는) ${job1.majors[0]} 등 기획/내용 위주로, ${job2.title}은(는) ${job2.majors[0]} 등 기술/분석 혹은 인문학적 베이스가 강조됩니다.</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('compareModal').classList.remove('hidden');
+        }
+
+        function renderCompareCard(job) {
+            return `
+                <div class="border-2 border-slate-100 rounded-2xl p-6 bg-slate-50 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${job.color}"></div>
+                    <div class="flex items-center gap-3 mb-4 mt-2">
+                        <span class="text-2xl">${job.icon}</span>
+                        <h3 class="text-xl font-bold text-slate-800">${job.title}</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <strong class="text-sm text-slate-500 block mb-1">핵심 직무</strong>
+                            <ul class="list-disc list-inside text-sm text-slate-700 space-y-1">
+                                ${job.duties.slice(0,2).map(d => `<li class="truncate" title="${d}">${d}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div>
+                            <strong class="text-sm text-slate-500 block mb-1">필요 역량</strong>
+                            <div class="flex flex-wrap gap-1">
+                                ${job.competencies.map(c => `<span class="px-2 py-1 bg-white border border-slate-200 rounded text-xs text-slate-600">${c.name}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div>
+                            <strong class="text-sm text-slate-500 block mb-1">고교 선택 과목</strong>
+                            <p class="text-sm text-slate-700">${job.highSchoolSubjects.join(', ')}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 6. 대학 정보 모달 열기
+        function showUniv(majorName) {
+            document.getElementById('univModalTitle').innerText = majorName;
+            
+            const univList = majorUnivMap[majorName] || ['정보 없음'];
+            const content = document.getElementById('univModalContent');
+            
+            content.innerHTML = univList.map(univ => 
+                `<span class="px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-lg text-sm">${univ}</span>`
+            ).join('');
+            
+            document.getElementById('univModal').classList.remove('hidden');
+        }
+
+        // 5. 로드맵 (인포그래픽) 열기
+        function openRoadmap(jobId) {
+            const job = jobData.find(j => j.id === jobId);
+            
+            // 모달 전환
+            closeModal('detailModal');
+            
+            document.getElementById('roadmapJobName').innerText = job.title;
+            const timeline = document.getElementById('roadmapTimeline');
+            timeline.innerHTML = '';
+
+            const icons = ['🎒', '🎓', '📝', '💼'];
+
+            job.roadmap.forEach((item, index) => {
+                const isLeft = index % 2 === 0;
+                
+                // 데스크톱: 지그재그, 모바일: 왼쪽 정렬
+                const alignClass = isLeft ? 'md:justify-start' : 'md:justify-end';
+                const cardMargin = isLeft ? 'md:mr-12' : 'md:ml-12';
+                const textAlign = isLeft ? 'md:text-right' : 'md:text-left';
+                const dotPosition = isLeft ? 'md:-right-[22px]' : 'md:-left-[22px]';
+
+                const html = `
+                    <div class="relative w-full flex justify-start ${alignClass} mb-12 last:mb-0">
+                        <!-- 데스크톱 중앙 점 / 모바일 왼쪽 점 -->
+                        <div class="absolute left-[24px] md:left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full bg-blue-600 border-4 border-white shadow z-10 top-6"></div>
+                        
+                        <!-- 콘텐츠 카드 -->
+                        <div class="w-full pl-[60px] md:pl-0 md:w-5/12">
+                            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-100 hover:shadow-lg transition-shadow relative">
+                                <!-- 데스크톱 연결 선 화살표 (선택사항, CSS로 처리하기 복잡하므로 생략하거나 심플하게 유지) -->
+                                <div class="text-blue-500 font-bold text-sm mb-1">${item.step} ${icons[index]}</div>
+                                <h4 class="text-xl font-bold text-slate-800 mb-2">${item.title}</h4>
+                                <p class="text-slate-600 leading-relaxed text-sm">${item.desc}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                timeline.insertAdjacentHTML('beforeend', html);
+            });
+
+            document.getElementById('roadmapModal').classList.remove('hidden');
+        }
+
+        // 공통: 모달 닫기
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // ESC 키 누르면 모달 닫기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal('detailModal');
+                closeModal('compareModal');
+                closeModal('roadmapModal');
+                closeModal('univModal');
+            }
+        });
+    </script>
+</body>
+</html>
